@@ -1,0 +1,10 @@
+fn add(a: u8, b: u8): u8 {
+  return a + b;
+}
+
+fn main(): u8 {
+  var a, b = 30, 12;
+  var c = a + b;
+  
+  return c;
+}
