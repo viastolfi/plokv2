@@ -29,6 +29,7 @@ int init_lexer(PLOK_lexer* l, char* path) {
 
   fclose(file);
 
+  l->file_name = path;
   l->row = 0;
   l->column = 0;
   l->index = 0;
@@ -83,6 +84,14 @@ int get_tokens(PLOK_lexer* l) {
       continue;
     }   
 
+    if (c.value == ';') {
+      PLOK_string_optionnal_value dummy = consume(l, 1); 
+      free(dummy.value);
+      l->column++;
+
+      continue;
+    }
+
     if (c.value == ' ') {
       PLOK_string_optionnal_value dummy = consume(l, 1); 
       free(dummy.value);
@@ -95,6 +104,7 @@ int get_tokens(PLOK_lexer* l) {
       PLOK_string_optionnal_value dummy = consume(l, 1); 
       free(dummy.value);
       l->row++;
+      l->column = 0;
 
       continue;
     }
@@ -109,10 +119,22 @@ int tokenize_intlit(PLOK_lexer* l) {
   
   while((c = peek(l, number_length)).has_value)
   {
-    if(!isdigit(c.value))
+    if (strchr("{ (;", c.value)) 
       break;
+    else if(!isdigit(c.value)) {
+      char* line = get_line(l);
+      if (line == NULL) {
+        puts("[ERROR] - lexer error on tokenize_intlit, can't fetch line"); 
+        return 1;
+      }
+      log_compile_error(l->file_name, l->column, l->row, "unexpected char", line);
+      free(line);
+      skip_line(l);
+      return 0;
+    }
 
     ++number_length;
+    l->column++;
   }
 
   PLOK_string_optionnal_value number = consume(l, number_length); 
@@ -124,7 +146,45 @@ int tokenize_intlit(PLOK_lexer* l) {
 
   PLOK_token token = {.token_type = (PLOK_tokens_def) PLOK_intlit, .int_value = atoi(number.value)};
   da_append(&(l->tokens), token);
-  l->column += number_length;
 
   return 0;
 }
+
+char* get_line(PLOK_lexer* l) {
+    const char *start = l->content;
+    int line = 0;
+
+    while (*start && line < l->row) {
+        const char *newline = strchr(start, '\n');
+        if (!newline) return NULL;
+        start = newline + 1;
+        line++;
+    }
+
+    const char *end = strchr(start, '\n');
+    size_t len = end ? (size_t)(end - start) : strlen(start);
+
+    char *line_copy = malloc(len + 1);
+    if (!line_copy) return NULL;
+
+    strncpy(line_copy, start, len);
+    line_copy[len] = '\0';
+    return line_copy;
+}
+
+int skip_line(PLOK_lexer* l) {
+    const char *cur = l->content + l->index;
+    const char *newline = strchr(cur, '\n');
+
+    if (newline) {
+        size_t distance = newline - cur + 1; 
+        l->index += distance;
+        l->row++;
+        l->column = 0;
+    } else {
+        l->index = strlen(l->content);
+    }
+
+    return 0;
+}
+

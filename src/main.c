@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "lexer.h"
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
@@ -32,6 +33,11 @@ int main(int argc, char **argv)
   if (init_lexer(&lexer, argv[1]) != 0) {
     puts("[ERROR] - Couldn't initialize lexer");
   } 
+
+  int res = get_tokens(&lexer);
+  if (res != 0) {
+    puts("[ERROR] - Error in lexer execution");
+  }
 
   return 0;
 }
