@@ -128,6 +128,8 @@ int get_tokens(PLOK_lexer* l) {
 
       continue;
     }
+
+    // if we fall in that case, it means we are facing an identifier
   } 
 
   return 0;
@@ -163,7 +165,7 @@ int tokenize_string(PLOK_lexer* l) {
   PLOK_string_optionnal_value dummy  = consume(l, 1);
   free(dummy.value);
 
-  PLOK_token token = {.token_type = (PLOK_tokens_def) PLOK_string, .string_value = s.value};
+  PLOK_token token = {.token_type = (PLOK_tokens_def) PLOK_string, .string_value = s.value, .string_len = string_length};
   da_append(&(l->tokens), token);
 
   return 0;
