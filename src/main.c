@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "lexer.h"
+
 int main(int argc, char **argv)
 {
   if (argc == 1) {
@@ -24,7 +26,12 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  puts("[INFO] - Start lexer");
+  puts("[INFO] - Start lexing");
+  puts("[INFO] - Init lexer");
+  PLOK_lexer lexer = {0};
+  if (init_lexer(&lexer, argv[1]) != 0) {
+    puts("[ERROR] - Couldn't initialize lexer");
+  } 
 
   return 0;
 }
