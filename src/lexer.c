@@ -130,9 +130,26 @@ int get_tokens(PLOK_lexer* l) {
     }
 
     // if we fall in that case, it means we are facing an identifier
+    int res = tokenize_identifier(l);
+    if (res != 0) {
+      puts("[ERROR] - Lexer error on tokenize_identifier"); 
+      return 1;
+    }
   } 
 
   return 0;
+}
+
+int tokenize_identifier(PLOK_lexer* l) {
+  int id_length = 0;
+  PLOK_char_optionnal_value c;
+  
+  while((c = peek(l, id_length)).has_value) {
+    if (c.value == ' ') 
+      break; 
+
+    if (strchr("{(", c.value)) 
+  }
 }
 
 int tokenize_string(PLOK_lexer* l) {
