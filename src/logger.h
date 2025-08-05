@@ -6,7 +6,7 @@
 
 #define log_compile_error(filename, col, row, msg, line) \
     do { \
-        printf("%s | %d col %d | error: %s\n", filename, (row) + 1, (col) + 1, msg); \
+        printf("%s:%d:%d | error: %s\n", filename, (row) + 1, (col) + 1, msg); \
         printf("  || %s\n", line); \
         printf("  || %*s^\n", (col), ""); \
     } while (0)

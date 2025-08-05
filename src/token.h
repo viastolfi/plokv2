@@ -3,6 +3,7 @@
 
 typedef enum {
   PLOK_intlit,
+  PLOK_string,
   PLOK_id,
   PLOK_eq,
   PLOK_charlit

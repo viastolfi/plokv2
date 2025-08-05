@@ -33,6 +33,7 @@ int init_lexer(PLOK_lexer* l, char* path) {
   l->row = 0;
   l->column = 0;
   l->index = 0;
+  l->error_count = 0;
 
   l->tokens.items = NULL;
   l->tokens.count = 0;
@@ -74,6 +75,11 @@ int get_tokens(PLOK_lexer* l) {
   PLOK_char_optionnal_value c;
 
   while ((c = peek(l, 0)).has_value) {
+    if (l->error_count >= 8) {
+      puts("[INFO] - Too many errors, stop compilation");
+      return 1;
+    }
+
     if (isdigit(c.value)) {
       int res = tokenize_intlit(l);
       if (res != 0) {
@@ -83,6 +89,20 @@ int get_tokens(PLOK_lexer* l) {
 
       continue;
     }   
+
+    if (c.value == '"') {
+      PLOK_string_optionnal_value dummy = consume(l, 1);
+      free(dummy.value);
+      l->column++;
+
+      int res = tokenize_string(l);
+      if (res != 0) {
+        puts("[ERROR] - Lexer error on tokenize_string"); 
+        return 1;
+      } 
+
+      continue;
+    }
 
     if (c.value == ';') {
       PLOK_string_optionnal_value dummy = consume(l, 1); 
@@ -113,6 +133,42 @@ int get_tokens(PLOK_lexer* l) {
   return 0;
 }
 
+int tokenize_string(PLOK_lexer* l) {
+  int string_length = 0;
+  PLOK_char_optionnal_value c;
+  int potential_error_col = l->column - 1;
+
+  while((c = peek(l, string_length)).has_value) {
+    if (c.value == '"') 
+      break; 
+
+    if (c.value == '\n') {
+      l->error_count++;
+      char* line = get_line(l);
+      if (line == NULL) {
+        puts("[ERROR] - lexer error on tokenize_string, can't fecth line"); 
+        return 1;
+      }
+      log_compile_error(l->file_name, potential_error_col, l->row, "missing terminating '\"' character", line);
+      free(line);
+      skip_line(l);
+      return 0;
+    }
+
+    ++string_length;
+    l->column++;
+  }
+
+  PLOK_string_optionnal_value s = consume(l, string_length);
+  PLOK_string_optionnal_value dummy  = consume(l, 1);
+  free(dummy.value);
+
+  PLOK_token token = {.token_type = (PLOK_tokens_def) PLOK_string, .string_value = s.value};
+  da_append(&(l->tokens), token);
+
+  return 0;
+}
+
 int tokenize_intlit(PLOK_lexer* l) {
   int number_length = 0;
   PLOK_char_optionnal_value c;
@@ -122,6 +178,7 @@ int tokenize_intlit(PLOK_lexer* l) {
     if (strchr("{ (;", c.value)) 
       break;
     else if(!isdigit(c.value)) {
+      l->error_count++;
       char* line = get_line(l);
       if (line == NULL) {
         puts("[ERROR] - lexer error on tokenize_intlit, can't fetch line"); 

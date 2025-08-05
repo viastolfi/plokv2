@@ -34,6 +34,7 @@ typedef struct {
 
   int column, row;
   int index;
+  int error_count;
 
   PLOK_tokens tokens;
 } PLOK_lexer;
@@ -45,5 +46,6 @@ PLOK_string_optionnal_value consume(PLOK_lexer *l, int offset);
 int tokenize_intlit(PLOK_lexer *l);
 char* get_line(PLOK_lexer* l);
 int skip_line(PLOK_lexer* l);
+int tokenize_string(PLOK_lexer* l);
 
 #endif
