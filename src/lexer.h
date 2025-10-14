@@ -47,5 +47,6 @@ int tokenize_intlit(PLOK_lexer *l);
 char* get_line(PLOK_lexer* l);
 int skip_line(PLOK_lexer* l);
 int tokenize_string(PLOK_lexer* l);
+int tokenize_identifier(PLOK_lexer* l);
 
 #endif

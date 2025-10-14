@@ -148,8 +148,15 @@ int tokenize_identifier(PLOK_lexer* l) {
     if (c.value == ' ') 
       break; 
 
-    if (strchr("{(", c.value)) 
+    id_length++;
   }
+
+  PLOK_string_optionnal_value t = consume(l, id_length);
+  if (t.has_value) {
+    PLOK_token token = {.token_type = (PLOK_tokens_def) PLOK_ident, .string_value = t.value, .string_len = id_length};
+    da_append(&(l->tokens), token);
+  }
+  return 0;
 }
 
 int tokenize_string(PLOK_lexer* l) {

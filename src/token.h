@@ -6,7 +6,8 @@ typedef enum {
   PLOK_string,
   PLOK_id,
   PLOK_eq,
-  PLOK_charlit
+  PLOK_charlit,
+  PLOK_ident
 } PLOK_tokens_def;
 
 typedef struct {
