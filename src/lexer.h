@@ -39,6 +39,8 @@ typedef struct {
   PLOK_tokens tokens;
 } PLOK_lexer;
 
+static char reserved_char[7] = {',', ';', ' ', '(', '{', ')', '}'};
+
 int init_lexer(PLOK_lexer* l, char* path);
 int get_tokens(PLOK_lexer* l);
 PLOK_char_optionnal_value peek(PLOK_lexer *l, int step);

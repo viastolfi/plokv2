@@ -143,11 +143,17 @@ int get_tokens(PLOK_lexer* l) {
 int tokenize_identifier(PLOK_lexer* l) {
   int id_length = 0;
   PLOK_char_optionnal_value c;
+  int stop = 0;
   
   while((c = peek(l, id_length)).has_value) {
-    if (c.value == ' ') 
-      break; 
+    for (int i = 0; i < 7; ++i) {
+      if (c.value == reserved_char[i]) {
+        stop = 1;
+        break;
+      }
+    }
 
+    if (stop) break;
     id_length++;
   }
 

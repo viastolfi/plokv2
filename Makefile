@@ -10,7 +10,7 @@ OBJ = \
 	$(BUILD)/lexer.o
 
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
+CFLAGS = -Wall -Wextra -std=c99 -g
 
 .PHONY: all clean
 
